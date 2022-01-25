@@ -66,25 +66,20 @@ class ViewController: UIViewController {
     }
     
     override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        if motion == .motionShake{
-            let alert = UIAlertController(title: "Undo the move ?", message:"Your last move will be removed", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Accept", style: .cancel, handler: nil))
-            present(alert, animated: true)
-            
-        }
-        resetBoard()
     }
     
-   // override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-     //   if motion == .motionShake{
-            
-       // }
-   // }
-    
-    
-    @IBAction func SaveUserDef(_ sender: UISwitch) {
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         
+            if motion == .motionShake{
+                let alert = UIAlertController(title: "Undo the move ?", message:"Your last move will be removed", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Accept", style: .cancel, handler: nil))
+                present(alert, animated: true)
+                
+            }
+            undoMove()
     }
+    
+    
     
     @objc func swipeFunc(gesture: UISwipeGestureRecognizer) {
         if gesture.direction == .right {
@@ -211,6 +206,25 @@ class ViewController: UIViewController {
         }
     }
     
+    func undoMove()
+    {
+        for button in board{
+           button.setTitle(nil, for: .normal)
+            button.isEnabled = true
+            
+        }
+        if(firstTurn == Turn.Potatoes)
+        {
+            
+            firstTurn = Turn.Cross
+            turnLabel.text = POTATOES
+        }
+        else if(firstTurn == Turn.Cross)
+        {
+            firstTurn = Turn.Potatoes
+            turnLabel.text = CROSS
+        }
+    }
     func newGame(){
         xscore.text = ""
         oscore.text = ""
@@ -258,6 +272,30 @@ class ViewController: UIViewController {
             else if (currentTurn == Turn.Cross)
             {
                 sender.setTitle(CROSS, for: .normal)
+                currentTurn = Turn.Potatoes
+                turnLabel.text = POTATOES
+                UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
+            }
+            sender.isEnabled = false
+            
+        }
+        
+    }
+ 
+    func undoToBoard(_ sender: UIButton)
+    {
+        if(sender.title(for: .normal) == nil)
+        {
+            if (currentTurn == Turn.Potatoes)
+            {
+                sender.setTitle(BLANK, for: .normal)
+                currentTurn = Turn.Cross
+                turnLabel.text = CROSS
+                UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
+            }
+            else if (currentTurn == Turn.Cross)
+            {
+                sender.setTitle(BLANK, for: .normal)
                 currentTurn = Turn.Potatoes
                 turnLabel.text = POTATOES
                 UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
