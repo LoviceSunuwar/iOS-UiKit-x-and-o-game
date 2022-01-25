@@ -14,7 +14,9 @@ class ViewController: UIViewController {
         case Cross
         
     }
-
+    
+    
+    
     @IBOutlet weak var oscore: UILabel!
     @IBOutlet weak var xscore: UILabel!
     @IBOutlet weak var turnLabel: UILabel!
@@ -28,11 +30,14 @@ class ViewController: UIViewController {
     @IBOutlet weak var c2: UIButton!
     @IBOutlet weak var c3: UIButton!
     
+   
+    let savestate = UserDefaults.standard.bool(forKey: "savegame")
     var firstTurn = Turn.Cross
     var currentTurn = Turn.Cross
     
     var POTATOES = "O"
     var CROSS = "X"
+    var BLANK = ""
     var board = [UIButton]()
     
     var potatoScore = 0
@@ -41,8 +46,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initBoard()
+        becomeFirstResponder()
+        
         xscore.text = "\(crossScore)"
         oscore.text = "\(potatoScore)"
+        
       let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(swipeFunc(gesture:)))
         swipeRight.direction = .right
         self.view.addGestureRecognizer(swipeRight)
@@ -50,6 +58,31 @@ class ViewController: UIViewController {
         swipeRight.direction = .left
         self.view.addGestureRecognizer(swipeLeft)
         // Do any additional setup after loading the view.
+        
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        if motion == .motionShake{
+            let alert = UIAlertController(title: "Undo the move ?", message:"Your last move will be removed", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Accept", style: .cancel, handler: nil))
+            present(alert, animated: true)
+            
+        }
+        resetBoard()
+    }
+    
+   // override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+     //   if motion == .motionShake{
+            
+       // }
+   // }
+    
+    
+    @IBAction func SaveUserDef(_ sender: UISwitch) {
         
     }
     
@@ -96,6 +129,10 @@ class ViewController: UIViewController {
         {
             resultAlert(title: "DRAW")
         }
+        
+        UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
+        
+        
     }
     
     func checkForVictory(_ s : String) -> Bool {
@@ -216,17 +253,21 @@ class ViewController: UIViewController {
                 sender.setTitle(POTATOES, for: .normal)
                 currentTurn = Turn.Cross
                 turnLabel.text = CROSS
+                UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
             }
             else if (currentTurn == Turn.Cross)
             {
                 sender.setTitle(CROSS, for: .normal)
                 currentTurn = Turn.Potatoes
                 turnLabel.text = POTATOES
+                UserDefaults.standard.set(sender.isEnabled, forKey: "savegame")
             }
             sender.isEnabled = false
+            
         }
+        
     }
     
-    
 }
+
 
